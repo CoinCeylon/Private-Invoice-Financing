@@ -1,7 +1,62 @@
-node_modules
-
+# ---------- Secrets: never commit ----------
+.vscode
 .env
 .env.*
 !.env.example
+*.skey
+*.vkey
+*.pem
+*.key
+*mnemonic*
+*seed*phrase*
 
-.vscode
+# ---------- Node / pnpm / TypeScript ----------
+node_modules/
+.pnpm-store/
+dist/
+build/
+*.tsbuildinfo
+.turbo/
+.vite/
+coverage/
+npm-debug.log*
+pnpm-debug.log*
+
+# ---------- Python (extraction worker) ----------
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# ---------- Cardano / Aiken ----------
+# Keep plutus.json (the compiled blueprint) committed: the app reads it.
+contracts/cardano/artifacts/
+contracts/cardano/build/
+contracts/cardano/docs/
+
+# ---------- Midnight / Compact ----------
+# Compiler output and proving keys are large and rebuilt by `compact compile`.
+contracts/midnight/**/managed/
+*.prover
+*.verifier
+
+# ---------- App data ----------
+uploads/
+storage/
+*.log
+
+# ---------- Tests ----------
+test-results/
+playwright-report/
+
+# ---------- Editors and OS ----------
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+.DS_Store
+Thumbs.db

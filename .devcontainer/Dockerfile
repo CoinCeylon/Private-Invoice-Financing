@@ -51,6 +51,7 @@ RUN TESSERACT_PKG="tesseract-ocr${TESSERACT_APT_VERSION:+=${TESSERACT_APT_VERSIO
         uuid-dev \
         xz-utils \
         zlib1g-dev \
+        postgresql-client \
     && rm -rf /var/lib/apt/lists/*
 
 # Also adds `python` and `pip` commands, and gives the node user ownership of
