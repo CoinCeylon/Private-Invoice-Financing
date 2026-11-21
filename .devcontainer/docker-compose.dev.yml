@@ -1,0 +1,28 @@
+# All relative paths are resolved from the FIRST Compose file: the repo root.
+services:
+  dev:
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        PNPM_VERSION: "${PNPM_VERSION:?Set the teams exact PNPM_VERSION in .env}"
+        AIKEN_VERSION: "${AIKEN_VERSION:?Set AIKEN_VERSION in .env, including the v prefix}"
+        COMPACT_VERSION: "${COMPACT_VERSION:?Set P4s exact COMPACT_VERSION in .env}"
+    init: true
+    command: ["sleep", "infinity"]
+    working_dir: /workspaces/invoice-financing
+    volumes:
+      - .:/workspaces/invoice-financing:cached
+    environment:
+      PGHOST: postgres
+      PGPORT: "5432"
+      PGUSER: "${POSTGRES_USER:?Set POSTGRES_USER in .env}"
+      PGPASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
+      PGDATABASE: "${POSTGRES_DB:?Set POSTGRES_DB in .env}"
+      PROOF_SERVER_URL: http://proof-server:6300
+      VITE_PROOF_SERVER_URL: http://localhost:6300
+    depends_on:
+      postgres:
+        condition: service_healthy
+      proof-server:
+        condition: service_started

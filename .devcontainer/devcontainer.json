@@ -1,0 +1,36 @@
+{
+  "name": "Private Invoice Financing",
+  "dockerComposeFile": [
+    "../docker-compose.yml",
+    "docker-compose.dev.yml"
+  ],
+  "service": "dev",
+  "runServices": ["dev", "postgres", "proof-server"],
+  "workspaceFolder": "/workspaces/invoice-financing",
+  "remoteUser": "node",
+  "updateRemoteUserUID": true,
+  "overrideCommand": false,
+  "shutdownAction": "stopCompose",
+  "forwardPorts": [5173, 4000, 8000],
+  "portsAttributes": {
+    "5173": {"label": "Web", "onAutoForward": "notify"},
+    "4000": {"label": "API", "onAutoForward": "notify"},
+    "8000": {"label": "Extraction", "onAutoForward": "notify"}
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "txpipe.aiken",
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "ms-python.python",
+        "Prisma.prisma",
+        "ms-azuretools.vscode-docker"
+      ],
+      "settings": {
+        "python.defaultInterpreterPath": "/opt/python/bin/python3"
+      }
+    }
+  },
+  "postCreateCommand": "pnpm install"
+}
