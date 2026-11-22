@@ -1,0 +1,24 @@
+{
+  "extractor_version": "0.1.0",
+  "documents": 10,
+  "overall_field_accuracy": 1.0,
+  "slip_status_accuracy": 1.0,
+  "fields": {
+    "invoice.buyer_name": 1.0,
+    "invoice.currency": 1.0,
+    "invoice.due_date": 1.0,
+    "invoice.invoice_date": 1.0,
+    "invoice.invoice_number": 1.0,
+    "invoice.po_reference": 1.0,
+    "invoice.subtotal_minor": 1.0,
+    "invoice.supplier_name": 1.0,
+    "invoice.tax_minor": 1.0,
+    "invoice.terms_days": 1.0,
+    "invoice.total_minor": 1.0,
+    "slip.amount_minor": 1.0,
+    "slip.currency": 1.0,
+    "slip.reference": 1.0,
+    "slip.transfer_date": 1.0
+  },
+  "note": "Measured on fictional team-made samples, not real invoices."
+}
