@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum OrgRole {
+  SUPPLIER
+  BUYER
+  LENDER
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  role      OrgRole
+  createdAt DateTime @default(now()) @map("created_at")
+
+  invoicesAsSupplier Invoice[] @relation("SupplierInvoices")
+  invoicesAsBuyer    Invoice[] @relation("BuyerInvoices")
+
+  @@map("organizations")
+}
+
+model Invoice {
+  id          String   @id @default(uuid())
+  reference   String
+  currency    String   @db.Char(3)
+  amountMinor BigInt   @map("amount_minor")
+  dueDate     DateTime @map("due_date") @db.Date
+  status      String   @default("DRAFT")
+  supplierId  String   @map("supplier_id")
+  buyerId     String   @map("buyer_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  supplier Organization @relation("SupplierInvoices", fields: [supplierId], references: [id])
+  buyer    Organization @relation("BuyerInvoices", fields: [buyerId], references: [id])
+
+  @@unique([buyerId, reference])
+  @@map("invoices")
+}
