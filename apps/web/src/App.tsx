@@ -4,6 +4,8 @@ import reactLogo from './assets/react.svg'
 import viteLogo from './assets/vite.svg'
 import './App.css'
 
+import { formatMinor } from "@invoice-veil/shared";
+
 function App() {
   const [count, setCount] = useState(0)
 
@@ -37,6 +39,7 @@ function App() {
           <svg className="icon" role="presentation" aria-hidden="true">
             <use href="/icons.svg#documentation-icon"></use>
           </svg>
+          <h1>{formatMinor(9_000_000)}</h1>
           <h2>Documentation</h2>
           <p>Your questions, answered</p>
           <ul>
