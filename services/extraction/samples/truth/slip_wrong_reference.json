@@ -1,0 +1,22 @@
+{
+  "kind": "slip",
+  "files": [
+    "slip_wrong_reference.png"
+  ],
+  "instruction": {
+    "amount_minor": 12000000,
+    "currency": "LKR",
+    "destination_account": "8001 2345 6789",
+    "reference": "INV-7Q4K-01"
+  },
+  "fields": {
+    "amount_minor": 12000000,
+    "currency": "LKR",
+    "transfer_date": "2027-01-04",
+    "status": "mismatch",
+    "codes": [
+      "ACCOUNT_PARTIAL",
+      "REFERENCE_MISSING"
+    ]
+  }
+}

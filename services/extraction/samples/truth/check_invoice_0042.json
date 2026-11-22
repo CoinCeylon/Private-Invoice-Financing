@@ -1,0 +1,24 @@
+{
+  "purchase_order": {
+    "reference": "PO-7781",
+    "currency": "LKR",
+    "total_minor": 15000000,
+    "line_items": [
+      {
+        "description": "Corrugated boxes 40x30x30 cm",
+        "quantity": "5000",
+        "unit_price_minor": 3000,
+        "amount_minor": 15000000
+      }
+    ]
+  },
+  "delivery_receipt": {
+    "reference": "GRN-3309",
+    "lines": [
+      {
+        "description": "Corrugated boxes 40x30x30 cm",
+        "quantity_received": "4000"
+      }
+    ]
+  }
+}

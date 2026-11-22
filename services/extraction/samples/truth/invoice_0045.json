@@ -1,0 +1,17 @@
+{
+  "kind": "invoice",
+  "files": [
+    "invoice_0045_scan.jpg"
+  ],
+  "fields": {
+    "invoice_number": "INV-2026-0045",
+    "invoice_date": "2026-11-22",
+    "due_date": "2027-01-06",
+    "terms_days": 45,
+    "po_reference": "PO-7790",
+    "currency": "LKR",
+    "total_minor": 4550000,
+    "buyer_name": "Market Buyer (Pvt) Ltd",
+    "supplier_name": "Gampaha Packaging (Pvt) Ltd"
+  }
+}

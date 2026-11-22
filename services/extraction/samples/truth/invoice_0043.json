@@ -1,0 +1,19 @@
+{
+  "kind": "invoice",
+  "files": [
+    "invoice_0043.pdf"
+  ],
+  "fields": {
+    "invoice_number": "INV-2026-0043",
+    "invoice_date": "2026-11-15",
+    "due_date": "2026-12-15",
+    "terms_days": 30,
+    "po_reference": "PO-7802",
+    "currency": "LKR",
+    "subtotal_minor": 7200000,
+    "tax_minor": 1296000,
+    "total_minor": 8496000,
+    "buyer_name": "Colombo Fresh Mart (Pvt) Ltd",
+    "supplier_name": "Gampaha Packaging (Pvt) Ltd"
+  }
+}
