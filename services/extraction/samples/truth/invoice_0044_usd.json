@@ -1,0 +1,17 @@
+{
+  "kind": "invoice",
+  "files": [
+    "invoice_0044_usd.pdf"
+  ],
+  "fields": {
+    "invoice_number": "INV-2026-0044",
+    "invoice_date": "2026-11-18",
+    "due_date": "2027-01-17",
+    "terms_days": 60,
+    "po_reference": "NW-PO-5521",
+    "currency": "USD",
+    "total_minor": 250000,
+    "buyer_name": "Northwind Retail Ltd",
+    "supplier_name": "Gampaha Packaging (Pvt) Ltd"
+  }
+}
