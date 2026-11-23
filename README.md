@@ -204,7 +204,6 @@ _Coming soon._ We will add the steps here when the code is ready.
 
 ## More information
 
-- `CLAUDE.md`: project rules for the team and for Claude
 - `TASKS.md`: day-by-day task list
 - `Private_Invoice_Financing_Project_and_Five_Person_Plan_Rev2.pdf`: the full plan
 
