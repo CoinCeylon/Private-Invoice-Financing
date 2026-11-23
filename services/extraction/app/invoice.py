@@ -18,26 +18,92 @@ _REF = r"([A-Z0-9][A-Z0-9\-/]{2,})"
 _I = re.IGNORECASE
 
 INVOICE_NO = re.compile(rf"invoice\s*(?:no\.?|number|num\.?|#)\s*[:#.]?\s*{_REF}", _I)
-PO_REF = re.compile(
-    rf"(?:\bP\.?\s?O\.?|purchase\s+order)\s*(?:no\.?|number|#|ref(?:erence)?\.?)?\s*[:#.]?\s*{_REF}", _I
-)
+PO_REF = re.compile( rf"(?:\bP\.?\s?O\.?|purchase\s+order)\s*(?:no\.?|number|#|ref(?:erence)?\.?)?\s*[:#.]?\s*{_REF}", _I )
+UNLABELLED_DATE = re.compile(DATE_PATTERN, _I)
 INVOICE_DATE = re.compile(rf"(?:invoice\s+date|date\s+of\s+issue|issue\s+date|^date)\s*[:.]?\s*{DATE_PATTERN}", _I)
-DUE_DATE = re.compile(rf"(?:due\s+date|payment\s+due|due\s+on)\s*[:.]?\s*{DATE_PATTERN}", _I)
+DUE_DATE = re.compile(rf"(?:due\s+date|payment\s+due|due\s+on|pay\s+by)\s*[:.]?\s*{DATE_PATTERN}", _I )
 TERMS = re.compile(r"(?:terms|credit\s+period)\s*[:.]?\s*(?:net\s*)?(\d{1,3})\s*days|\bnet\s*(\d{1,3})\b", _I)
-TOTAL = re.compile(r"\b(grand\s+total|total\s+due|total\s+payable|amount\s+due|balance\s+due|total)\b", _I)
+TOTAL = re.compile( r"\b(" r"grand\s+total|" r"total\s+due|" r"total\s+payable|" r"amount\s+due|" r"balance\s+due|" r"tota[l1i]" r")\b", _I )
 SUBTOTAL = re.compile(r"\bsub\s*-?\s*total\b", _I)
 TAX = re.compile(r"\b(vat|tax|sscl|gst)\b", _I)
 SUPPLIER_LABEL = re.compile(r"^\s*(?:from|supplier|seller|vendor|issued\s+by)\s*[:]\s*(.*)$", _I)
 BUYER_LABEL = re.compile(r"^\s*(?:bill(?:ed)?\s+to|buyer|customer|sold\s+to|to)\s*[:]\s*(.*)$", _I)
 LINE_ITEM = re.compile(
-    r"^(?P<desc>[A-Za-z].*?)\s+(?P<qty>\d[\d,]*(?:\.\d+)?)\s+"
-    r"(?P<unit>\d[\d,]*(?:\.\d{1,2})?)\s+(?P<amount>\d[\d,]*(?:\.\d{1,2})?)\s*$"
-)
+            r"^(?P<desc>.+?)\s+"
+            r"(?P<qty>\d+(?:\.\d+)?)\s+"    
+            r"\$?(?P<unit>\d[\d,]*(?:\.\d{1,2})?)\s+"
+            r"\$?(?P<amount>\d[\d,]*(?:\.\d{1,2})?)\s*$",
+            _I
+            )
 NOT_A_NAME = re.compile(r"invoice|tax|date|page|^\W*$", _I)
-
+ACCOUNT_NAME = re.compile(r"^\s*account\s+name\s*[:]\s*(.*)$", _I )
 
 def _lower(conf: str) -> str:
     return {"high": "medium", "medium": "low"}.get(conf, conf)
+
+
+def _clean_name(text: str) -> str:
+
+    # Remove dates
+    text = re.sub(
+        r"\b\d{1,2}\s+[A-Za-z]+\s+\d{4}\b",
+        "",
+        text,
+        flags=re.I,
+    )
+
+    # Remove non-name characters
+    text = re.sub(
+        r"[^A-Za-z\s'.-]",
+        "",
+        text,
+    )
+
+    # Normalize spaces
+    text = " ".join(text.split())
+
+    words = text.split()
+
+    # Most personal names on invoices are 2-3 words.
+    # Remove OCR garbage after the name.
+    if len(words) > 3:
+        words = words[:3]
+
+    text = " ".join(words)
+
+    return text.strip()
+
+
+def _compress_item_lines(lines: list[str]) -> list[str]:
+
+    compressed = []
+
+    i = 0
+
+    while i < len(lines):
+
+        merged = lines[i]
+
+        if (
+            i + 3 < len(lines)
+            and re.match(r"^\d+(?:\.\d+)?$", lines[i + 1])
+            and re.match(r"^\$?\d+(?:\.\d+)?$", lines[i + 2])
+            and re.match(r"^\$?\d+(?:\.\d+)?$", lines[i + 3])
+        ):
+            merged = (
+                f"{lines[i]} "
+                f"{lines[i + 1]} "
+                f"{lines[i + 2]} "
+                f"{lines[i + 3]}"
+            )
+
+            i += 3
+
+        compressed.append(merged)
+
+        i += 1
+
+    return compressed
 
 
 def _first(pattern: re.Pattern[str], lines: list[str]) -> tuple[re.Match[str], str] | None:
@@ -77,6 +143,7 @@ def _amount_line(lines: list[str], wanted: re.Pattern[str], exclude: re.Pattern[
 
 def parse_invoice(doc: DocumentText) -> tuple[dict[str, ExtractedField], list[ExtractedLineItem], list[str]]:
     lines = [ln.strip() for ln in doc.text.splitlines() if ln.strip()]
+    lines = _compress_item_lines(lines)
     base = "high"
     reasons: list[str] = []
     if doc.ocr_confidence is not None and doc.ocr_confidence < 75:
@@ -95,7 +162,23 @@ def parse_invoice(doc: DocumentText) -> tuple[dict[str, ExtractedField], list[Ex
     put("po_reference", hit[0].group(1).upper() if hit else None, base, hit[1] if hit else None)
 
     hit = _first(INVOICE_DATE, lines)
-    invoice_date = parse_date(hit[0].group(1)) if hit else None
+    if not hit:
+        for line in lines[:10]:
+            m = UNLABELLED_DATE.search(line)
+            if m:
+                hit = (m, line)
+                break
+
+    if hit:
+        date_text = (
+            hit[0].group(1)
+            if hit[0].lastindex
+            else hit[0].group(0)
+        )
+        invoice_date = parse_date(date_text)
+    else:
+        invoice_date = None
+
     put("invoice_date", invoice_date.isoformat() if invoice_date else None, base, hit[1] if hit else None)
 
     hit = _first(TERMS, lines)
@@ -115,16 +198,18 @@ def parse_invoice(doc: DocumentText) -> tuple[dict[str, ExtractedField], list[Ex
 
 
     hit = _name_after_label(SUPPLIER_LABEL, lines)
+    if not hit:
+        hit = _name_after_label(ACCOUNT_NAME, lines)
     if hit:
-        put("supplier_name", hit[0], base, hit[1])
+        put("supplier_name", _clean_name(hit[0]), base, hit[1])
     else:  # fall back to the first line that looks like a company name
-        top = next((ln for ln in lines[:4]
+        top = next((ln for ln in lines[:15]
                     if not NOT_A_NAME.search(ln) and ":" not in ln and not re.search(r"\d{3}", ln)), None)
-        company = top and re.search(r"\b(ltd|plc|pvt|inc|company|co\.)\b", top, _I)
-        put("supplier_name", top, "medium" if company else "low", top)
+        company = top and re.search( r"\b(" r"ltd|" r"limited|" r"plc|" r"pvt|" r"inc|" r"corporation|" r"company|" r"co\.?" r")\b", top, _I)
+        put( "supplier_name", _clean_name(top) if top else None, "medium" if company else "low", top)
 
     hit = _name_after_label(BUYER_LABEL, lines)
-    put("buyer_name", hit[0] if hit else None, base, hit[1] if hit else None)
+    put("buyer_name",_clean_name(hit[0]) if hit else None, base, hit[1] if hit else None )
 
     subtotal = _amount_line(lines, SUBTOTAL, None)
     put("subtotal_minor", subtotal[0] if subtotal else None, base, subtotal[1] if subtotal else None)
@@ -134,10 +219,16 @@ def parse_invoice(doc: DocumentText) -> tuple[dict[str, ExtractedField], list[Ex
         tax = None  # a "Total incl. VAT" line is the total, not the tax
     put("tax_minor", tax[0] if tax else None, base, tax[1] if tax else None)
 
+    calculated_total = False
     total = _amount_line(lines, TOTAL, re.compile(r"sub\s*-?\s*total|\b(vat|tax)\s*\(", _I))
-    put("total_minor", total[0] if total else None, base, total[1] if total else None)
-
-    # Currency printed on the total line wins; otherwise the most mentioned one.
+    if not total and subtotal:
+        calculated_total = True
+        calculated_total = (subtotal[0] + (tax[0] if tax else 0) )
+        total = ( calculated_total,"Calculated from subtotal + tax"  )
+        reasons.append( "Total was not found; calculated from subtotal and tax." )
+    put( "total_minor", total[0] if total else None,  _lower(base) if calculated_total else base, total[1] if total else None  )
+    
+        # Currency printed on the total line wins; otherwise the most mentioned one.
     currency = (detect_currency(total[1]) if total else None) or detect_currency(doc.text)
     put("currency", currency, base, total[1] if total and detect_currency(total[1]) else None)
 
@@ -162,6 +253,24 @@ def parse_invoice(doc: DocumentText) -> tuple[dict[str, ExtractedField], list[Ex
                 arithmetic_ok=int(qty * unit) == amount,
             )
         )
+
+    # Validate extracted line items against subtotal
+    if subtotal and items:
+
+        items_total = sum(
+            item.amount_minor
+            for item in items
+        )
+
+        difference = subtotal[0] - items_total
+
+        if difference != 0:
+
+            reasons.append(
+                f"Line items total {items_total} "
+                f"does not match subtotal {subtotal[0]}. "
+                f"Difference: {difference}."
+            )
 
     # Cross-checks that change confidence.
     if total and subtotal and fields["total_minor"].value is not None:
