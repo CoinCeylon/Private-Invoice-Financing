@@ -13,6 +13,14 @@ services:
     working_dir: /workspaces/invoice-financing
     volumes:
       - .:/workspaces/invoice-financing:cached
+      # Installed dependencies live in Docker volumes, not in the bind mount. On Windows the bind mount
+      # is very slow and sometimes stalls, and tools that load thousands of files (Prisma, vitest) hang.
+      # The source stays on the host; only these folders are hidden behind volumes inside the container.
+      - root_node_modules:/workspaces/invoice-financing/node_modules
+      - web_node_modules:/workspaces/invoice-financing/apps/web/node_modules
+      - api_node_modules:/workspaces/invoice-financing/apps/api/node_modules
+      - shared_node_modules:/workspaces/invoice-financing/packages/shared/node_modules
+      - extraction_venv:/workspaces/invoice-financing/services/extraction/.venv
     environment:
       PGHOST: postgres
       PGPORT: "5432"
@@ -27,3 +35,10 @@ services:
         condition: service_healthy
       proof-server:
         condition: service_started
+
+volumes:
+  root_node_modules:
+  web_node_modules:
+  api_node_modules:
+  shared_node_modules:
+  extraction_venv:

@@ -1,7 +1,7 @@
 # invoice-veil: Task List
 
 UniHack 2026 · Private invoice financing on Cardano and Midnight
-Last updated: **22 Nov 2026**
+Last updated: **25 Nov 2026**
 
 `[x]` done · `[ ]` to do · **P1** frontend · **P2** backend · **P3** Cardano · **P4** Midnight · **P5** document AI and research
 
@@ -40,9 +40,10 @@ Last updated: **22 Nov 2026**
 - [x] Tool versions pinned: Node 22.23.5, pnpm 12.21.0, Python 3.12.16, Aiken 1.1.24, Compact 0.36.1 (CLI 0.5.1)
 - [x] Dev container builds, and every tool prints its pinned version
 - [x] Root `package.json` and `pnpm-workspace.yaml`
-- [ ] `postgresql-client` added to the dev-container Dockerfile (`psql` missing)
-- [ ] `DATABASE_URL` added to `docker-compose.dev.yml` (currently in `apps/api/.env`)
-- [ ] `.gitattributes` with LF line endings committed
+- [x] `postgresql-client` added to the dev-container Dockerfile
+- [x] `DATABASE_URL` added to `docker-compose.dev.yml`
+- [x] `.gitattributes` with LF line endings committed
+- [x] Dev container keeps `node_modules` and `.venv` in Docker volumes (the Windows bind mount stalled Prisma and vitest)
 - [ ] Versions table in the README
 - [ ] Setup tagged `setup-complete`
 - [ ] Fresh-clone test by a teammate in under 30 minutes
@@ -58,7 +59,7 @@ Last updated: **22 Nov 2026**
 - [x] `packages/shared` with `formatMinor`, built and imported by the API
 - [x] Express + TypeScript API runs on port 4000
 - [x] Prisma 7.10.1 set up, `organizations` and `invoices` tables migrated
-- [ ] `/health` checked with `curl` and showing `"database":"connected"`
+- [x] `/health` checked with `curl` and showing `"database":"connected"`
 - [ ] Shared function used in the web app
 - [ ] `apps/api/src/generated/` in `.gitignore`, pull request merged
 
@@ -98,7 +99,8 @@ Last updated: **22 Nov 2026**
 - [ ] **P2** Shared invoice format and amount encoding in `packages/shared`
 - [ ] **P2** Tables: `memberships`, `documents`, `invoice_versions`, `listings`, `offers`
 - [ ] **P2** Upload route: store file, call `/extract/invoice`, save the review
-- [ ] **P2** Seed script with Gampaha Packaging, Market Buyer, Lender A and Lender B
+- [x] **P2** Seed script with Gampaha Packaging, Market Buyer, Lender A and Lender B
+- [x] **P1 / P2** First real read path: `GET /invoices?role=` with per-role visibility, web list uses it with `VITE_INVOICE_API=http`
 - [ ] **P1** Upload and extraction review screen with low-confidence fields highlighted
 - [ ] **P1** Buyer approval screen showing PO and receipt checks
 - [ ] **P4** Commitment format agreed with P2 and P3

@@ -32,5 +32,5 @@
       }
     }
   },
-  "postCreateCommand": "pnpm install"
+  "postCreateCommand": "sudo chown node:node node_modules apps/web/node_modules apps/api/node_modules packages/shared/node_modules services/extraction/.venv && pnpm install && pnpm --filter @invoice-veil/shared build"
 }
