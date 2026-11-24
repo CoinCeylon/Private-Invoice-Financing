@@ -141,20 +141,20 @@ With Lender B, the supplier would get only LKR 84,000 now and pay a LKR 3,600 fe
 
 ## Tech stack
 
-| Part                    | Tool                  |
-| ----------------------- | --------------------- |
-| Website                 | Next.js + TypeScript  |
-| Server (API)            | TypeScript            |
-| Database                | PostgreSQL            |
-| Reading invoices (AI)   | Python + OCR          |
-| Cardano smart contract  | Aiken + Mesh          |
-| Midnight smart contract | Compact + Midnight.js |
+| Part                    | Tool                                  |
+| ----------------------- | ------------------------------------- |
+| Website                 | React + Vite + TypeScript             |
+| Server (API)            | Express + TypeScript                  |
+| Database                | PostgreSQL + Prisma                   |
+| Reading invoices (AI)   | Python + FastAPI + Tesseract OCR      |
+| Cardano smart contract  | Aiken + Mesh                          |
+| Midnight smart contract | Compact + Midnight.js                 |
 
 ## Folders
 
 ```
 apps/web                  → the website (P1)
-services/api              → the server and database (P2)
+apps/api                  → the server and database (P2)
 services/extraction       → AI that reads invoices (P5)
 contracts/cardano         → Cardano contract (P3)
 contracts/midnight        → Midnight contract (P4)
@@ -179,7 +179,98 @@ research                  → interview notes (no real names)
 
 ## How to run
 
-_Coming soon._ We will add the steps here when the code is ready.
+Everything runs inside the dev container. The web app also works on its own with mock data.
+
+### What you need
+
+- Docker Desktop
+- VS Code with the **Dev Containers** extension
+
+### First time only
+
+1. Create your local settings file. It is never committed.
+
+   ```bash
+   cp .env.example .env
+   ```
+
+2. Open the folder in VS Code and run **Dev Containers: Rebuild Container** (Ctrl+Shift+P).
+   This starts PostgreSQL, the Midnight proof server and the extraction service,
+   installs the packages and builds `packages/shared`. The first build takes a few minutes.
+
+3. In the container terminal, create the tables and add the demo data. Both are safe to run again.
+
+   ```bash
+   pnpm --filter api exec prisma migrate deploy
+   pnpm --filter api db:seed
+   ```
+
+### Run it
+
+**Web app only, with mock data (the full demo)**
+
+```bash
+pnpm --filter web dev
+```
+
+Open http://localhost:5173 and use the role switcher to act as Supplier, Buyer, Lender A or Lender B.
+
+**Web app with the real API**
+
+Terminal 1:
+
+```bash
+pnpm --filter api dev
+```
+
+Check http://localhost:4000/health. It should show `"database":"connected"`.
+
+Terminal 2:
+
+```bash
+VITE_INVOICE_API=http pnpm --filter web dev
+```
+
+The invoice list now comes from PostgreSQL. The other screens still use mock data while we move them to the API one by one.
+
+**Read an invoice with the AI**
+
+With the API running:
+
+```bash
+curl -F file=@services/extraction/samples/invoice_0042.pdf "localhost:4000/extract/invoice?role=supplier"
+```
+
+It returns the fields it found, each with a confidence level. The sample invoice says LKR 150,000 on purpose:
+the purchase order says LKR 120,000, and the buyer catches the mistake.
+
+### Tests
+
+```bash
+pnpm --filter web test
+pnpm --filter api test
+```
+
+The extraction tests need its Python packages once:
+
+```bash
+cd services/extraction
+python -m venv .venv && . .venv/bin/activate
+pip install -r requirements-dev.txt
+pytest -q
+```
+
+### Ports
+
+| Port | Service |
+| ---- | ------- |
+| 5173 | Website |
+| 4000 | API |
+| 5432 | PostgreSQL |
+| 6300 | Midnight proof server |
+
+The extraction service is reachable only from inside Docker, through the API.
+If a page does not open, check the **Ports** tab in VS Code.
 
 ---
 
