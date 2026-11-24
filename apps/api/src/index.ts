@@ -5,6 +5,7 @@ import { PrismaClient } from "./generated/prisma/client.js";
 import { formatMinor } from "@invoice-veil/shared";
 import { demoOrganizations, isDemoRole } from "./demo-organizations.js";
 import type { DemoRole } from "./demo-organizations.js";
+import { extractionRouter } from "./extraction.js";
 import { listingStatusCodes, toInvoiceSummary } from "./invoice-summary.js";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
@@ -50,6 +51,8 @@ app.get("/invoices", async (req, res) => {
   });
   res.json(rows.map((row) => toInvoiceSummary(role, row)));
 });
+
+app.use(extractionRouter(process.env.EXTRACTION_URL ?? "http://localhost:8000"));
 
 const port = Number(process.env.PORT ?? 4000);
 app.listen(port, () => console.log(`API listening on http://localhost:${port}`));

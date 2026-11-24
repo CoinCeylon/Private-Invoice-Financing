@@ -5,7 +5,7 @@
     "docker-compose.dev.yml"
   ],
   "service": "dev",
-  "runServices": ["dev", "postgres", "proof-server"],
+  "runServices": ["dev", "postgres", "proof-server", "extraction"],
   "workspaceFolder": "/workspaces/invoice-financing",
   "remoteUser": "node",
   "updateRemoteUserUID": true,

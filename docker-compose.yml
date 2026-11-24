@@ -25,5 +25,11 @@ services:
     ports:
       - "127.0.0.1:6300:6300"
 
+  # Invoice and bank-slip reading (P5). Only the API calls it, at http://extraction:8000,
+  # so no port is published to the host.
+  extraction:
+    build: ./services/extraction
+    restart: unless-stopped
+
 volumes:
   postgres_data:
