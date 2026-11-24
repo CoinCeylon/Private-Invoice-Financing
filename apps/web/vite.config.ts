@@ -9,5 +9,12 @@ export default defineConfig({
     host: true,
     port: 5173,
     strictPort: true,
+    proxy: {
+      // The browser calls /api/...; Vite forwards it to the Express API without the /api prefix.
+      '/api': {
+        target: 'http://localhost:4000',
+        rewrite: (path) => path.replace(/^\/api/, ''),
+      },
+    },
   },
 })

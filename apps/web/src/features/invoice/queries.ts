@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
 import type { InvoiceAction } from '../../lib/api'
-import { invoiceVeilApi } from '../../lib/mock-api'
+import { invoiceVeilApi } from '../../lib/http-api'
 import type { Role } from '../../lib/roles'
 
 export function useInvoices(role: Role) {

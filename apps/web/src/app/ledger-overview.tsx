@@ -6,7 +6,7 @@ import { Button } from '../components/ui/button'
 import { StatusBadge } from '../components/ui/ledger'
 import { VeiledAmount } from '../components/veiled-amount'
 import type { ChainEntry, LedgerSnapshot } from '../lib/api'
-import { invoiceVeilApi } from '../lib/mock-api'
+import { invoiceVeilApi } from '../lib/http-api'
 import { formatMoney } from '../lib/money'
 import type { Role } from '../lib/roles'
 

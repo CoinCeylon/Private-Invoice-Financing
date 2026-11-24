@@ -6,7 +6,7 @@ import { toast } from 'sonner'
 import { Button } from '../../components/ui/button'
 import { DocumentInput } from '../../components/ui/document-input'
 import { LedgerMessage, Notice, PageIntro, Panel } from '../../components/ui/ledger'
-import { invoiceVeilApi } from '../../lib/mock-api'
+import { invoiceVeilApi } from '../../lib/http-api'
 import { validateDocumentFile } from '../../lib/documents'
 
 export function UploadPage() {

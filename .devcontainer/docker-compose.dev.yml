@@ -19,6 +19,7 @@ services:
       PGUSER: "${POSTGRES_USER:?Set POSTGRES_USER in .env}"
       PGPASSWORD: "${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}"
       PGDATABASE: "${POSTGRES_DB:?Set POSTGRES_DB in .env}"
+      DATABASE_URL: "postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}"
       PROOF_SERVER_URL: http://proof-server:6300
       VITE_PROOF_SERVER_URL: http://localhost:6300
     depends_on:
