@@ -25,5 +25,14 @@ services:
     ports:
       - "127.0.0.1:6300:6300"
 
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama  
+
 volumes:
   postgres_data:
+  ollama_data:
