@@ -153,9 +153,9 @@ With Lender B, the supplier would get only LKR 84,000 now and pay a LKR 3,600 fe
 ## Folders
 
 ```
-apps/web                  → the website (P1)
+apps/web                  → the website (P5)
 apps/api                  → the server and database (P2)
-services/extraction       → AI that reads invoices (P5)
+services/extraction       → AI that reads invoices (P1)
 contracts/cardano         → Cardano contract (P3)
 contracts/midnight        → Midnight contract (P4)
 packages/proof-verifier   → lender checks (P4)
@@ -167,13 +167,13 @@ research                  → interview notes (no real names)
 
 ## Team
 
-| Person | Job                                    |
-| ------ | -------------------------------------- |
-| **P1** | Website, screens, demo video           |
-| **P2** | Server, database, access rules         |
-| **P3** | Cardano contract                       |
-| **P4** | Midnight contract and proofs           |
-| **P5** | AI invoice reading and user interviews |
+| Person | Job                                                      |
+| ------ | -------------------------------------------------------- |
+| **P1** | All AI work (invoice and slip reading), integration lead |
+| **P2** | Server, database, access rules, deployment               |
+| **P3** | Cardano contract                                         |
+| **P4** | Midnight contract and proofs                             |
+| **P5** | Website, screens, user interviews, pitch and demo video  |
 
 ---
 
