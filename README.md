@@ -158,10 +158,11 @@ apps/api                  → the server and database (P2)
 services/extraction       → AI that reads invoices (P1)
 contracts/cardano         → Cardano contract (P3)
 contracts/midnight        → Midnight contract (P4)
-packages/proof-verifier   → lender checks (P4)
-packages/shared           → shared types and formats
+packages/proof-verifier   → Midnight proof library (P4)
+packages/cardano-registry → Cardano registry library (P3)
+packages/shared           → shared types, interfaces and fakes
 fixtures                  → fake test invoices
-docs                      → setup and design notes
+docs                      → setup and design notes (interfaces.md: the agreed module interfaces)
 research                  → interview notes (no real names)
 ```
 

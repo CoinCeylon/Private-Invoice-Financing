@@ -56,6 +56,8 @@ Pydantic schemas in `schemas.py`, private helpers prefixed `_`, tests in `tests/
 - Money is always integer **minor units** (cents), never floats. Web uses `{ minorUnits, currency }`;
   the DB uses `amount_minor BIGINT`. Currencies are `LKR` and `USD`.
 - Rates, fees and shares are **basis points** (`advanceBps`, `feeBps`, `recourseBps`).
+- Module interfaces (commitment, Cardano registry, Midnight prover, extraction shapes, HTTP routes) are frozen in
+  `docs/interfaces.md` and typed in `packages/shared/src`. Don't change them without the user's OK.
 - The web app talks to the backend only through the `InvoiceVeilApi` interface in `apps/web/src/lib/api.ts`
   (currently implemented by `mock-api.ts`). Keep new backend work shaped to that contract.
 - Privacy is the product: the buyer never sees offers or fees, a lender never sees another lender's offer,

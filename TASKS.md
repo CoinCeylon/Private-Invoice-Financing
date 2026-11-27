@@ -1,7 +1,7 @@
 # invoice-veil: Task List
 
 UniHack 2026 · Private invoice financing on Cardano and Midnight
-Last updated: **27 Nov 2026** (roles rearranged: one owner for all AI work, independent tracks, one integrator)
+Last updated: **28 Nov 2026** (Stage 0 interfaces fixed in `docs/interfaces.md`)
 
 `[x]` done · `[ ]` to do · current progress lives in `PROGRESS.md`
 
@@ -11,14 +11,14 @@ Last updated: **27 Nov 2026** (roles rearranged: one owner for all AI work, inde
 |---|---|---|
 | **P1** | **All AI work** (invoice and slip reading, document checks, accuracy, AI stretch items) **and integration lead** | `services/extraction`, then the integration branch |
 | **P2** | Backend: API, database, access rules, `http-api.ts` client, Dockerfiles, deployment | `apps/api`, `packages/shared`, `apps/web/src/lib/http-api*.ts` |
-| **P3** | Cardano: Aiken registry validator and its off-chain library | `contracts/cardano` |
+| **P3** | Cardano: Aiken registry validator and its off-chain library | `contracts/cardano`, `packages/cardano-registry` |
 | **P4** | Midnight: minimum-value circuit and the proof library | `contracts/midnight`, `packages/proof-verifier` |
 | **P5** | Frontend screens, wallet connect, research interviews, pitch deck and demo video | `apps/web` (except `http-api*.ts`), `research/` |
 
 ## How we work
 
-1. **Contracts first (by 28 Nov).** Everyone agrees the interfaces in Stage 0 once. After that nobody
-   waits for anybody else.
+1. **Contracts first (done 28 Nov).** The interfaces are fixed in `docs/interfaces.md`. Nobody waits for
+   anybody else.
 2. **Independent build (to 3 Dec).** Each person works alone on their own branch (`p<N>/<topic>`), touching only
    their own folders, against **fakes** of everyone else's module. Each module ships with its own tests and a
    standalone demo (script, CLI or mock-backed screen) that proves it works without the others.
@@ -36,7 +36,7 @@ Changing a frozen interface after 28 Nov needs P1's OK, because P1 is the one wh
 
 | Date | Milestone |
 |---|---|
-| **28 Nov** | **Interfaces frozen (Stage 0)** |
+| **28 Nov** | **Interfaces frozen: `docs/interfaces.md` (done)** |
 | 30 Nov | Contracts and proof work alone, two interviews done |
 | **3 Dec, 11:59 PM** | **Hand-off: every module merged with its README and standalone demo** |
 | 4–7 Dec | P1 integrates: approve → register → prove → offers → pledge → settle |
@@ -74,18 +74,20 @@ Changing a frozen interface after 28 Nov needs P1's OK, because P1 is the one wh
 
 ---
 
-## Stage 0: Interfaces (27–28 Nov, everyone, one meeting)
+## Stage 0: Interfaces (done 28 Nov, no meeting needed)
 
-Write each agreed interface as TypeScript types in `packages/shared` (P2 commits them) so fakes and real
-modules have the same shape.
+Fixed without a meeting. **Read `docs/interfaces.md`** (your own section and "The flow") before you start.
+The TypeScript versions are in `packages/shared/src`, with working fakes in `packages/shared/src/fakes.ts`.
 
-- [ ] **All** Invoice commitment format: which fields, their encoding, the hash, the salt (P4 drafts, P2 and P3 sign off)
-- [ ] **All** `CardanoRegistry` interface: `register`, `amend`, `pledge`, `markDefaulted`, `close`, `cancel`, `getState`, `listEvents` (P3 drafts)
-- [ ] **All** `MinimumValueProver` interface: `prove(invoice, salt, threshold)` and `verify(proof, commitment, threshold)` (P4 drafts)
-- [ ] **All** Decide where transactions are built and signed (suggested: P3's library builds them in the API, the browser wallet signs)
-- [ ] **All** Extraction response shape the API relies on, including how confidence maps to `lowConfidence` (P1 drafts)
-- [ ] **All** HTTP routes behind every `InvoiceVeilApi` method and `InvoiceAction` in `apps/web/src/lib/api.ts` (P2 drafts)
-- [ ] **P1** Task board in GitHub Projects with an owner on every card; daily 15-minute check-in time fixed
+- [x] Invoice commitment format: fields, encoding, hash, salt (`commitment.ts`)
+- [x] `CardanoRegistry` interface: register, amend, pledge, markDefaulted, close, cancel, submit, getEntry, listEvents (`cardano.ts`)
+- [x] `MinimumValueProver` interface: computeCommitment, prove, verify (`midnight.ts`)
+- [x] Transactions and proofs built and signed in the API with server-side test wallets; browser signing is a stretch
+- [x] Extraction response shape and the low-confidence rule (`extraction.ts`)
+- [x] HTTP routes behind every `InvoiceVeilApi` method, error format, action rules (`http.ts`, `status.ts`)
+- [x] `FakeRegistry` and `FakeProver` pass the shared acceptance scenario
+- [ ] **All** Each person reads their section of `docs/interfaces.md` and raises any problem with P1 by 29 Nov
+- [ ] **P1** Task board in GitHub Projects with an owner on every card; daily check-in time fixed (chat is fine)
 
 ---
 
@@ -94,24 +96,24 @@ modules have the same shape.
 ### P1: AI (finish by 3 Dec, then integrate)
 
 - [ ] Extraction tests pass inside the dev container
-- [ ] Demo case sample: scanned invoice that says LKR 150,000 against a PO and receipt for LKR 120,000, flagged by `/check/invoice`
+- [ ] Demo case sample: scanned invoice that says LKR 150,000 against a PO and receipt for LKR 120,000; `/check/invoice` returns an error with `difference_minor: 3000000`
 - [ ] 3–5 harder samples added (blur, rotation, handwriting, other layouts), evaluation rerun, `metrics.json` updated
-- [ ] Slip check against a payment instruction: amount, reference and payee, with clear mismatch reasons
+- [ ] Slip check against a payment instruction (exists in `/extract/slip`): add tests for amount, reference and payee mismatches with clear reasons
 - [ ] Confidence thresholds documented and tuned so only truly unsure fields come back as low confidence
 - [ ] Extraction README "how to use" section and an honest AI description for the main README ("on fictional samples")
 - [ ] Tag `setup-complete` once the dev container and Compose are confirmed stable
 
 ### P2: Backend
 
-- [ ] Shared types in `packages/shared`: Stage 0 interfaces, amount encoding, invoice status codes
-- [ ] Tables: `memberships`, `documents`, `invoice_versions`, `listings`, `offers`, `payments`, `chain_events`
+- [ ] Use `statusLabels` and `actionRules` from `@invoice-veil/shared` instead of the API's own copies
+- [ ] Tables: `memberships`, `documents`, `invoice_versions`, `listings`, `offers`, `purchase_orders`, `delivery_receipts`, `payments`, `chain_events`, plus the per-invoice chain columns in `docs/interfaces.md` § 7
 - [ ] Every `InvoiceVeilApi` method served over HTTP: ledger snapshot, invoice detail per role, upload, `act`
 - [ ] Every `InvoiceAction` as a state change with checks (who may do it, in which status)
 - [ ] Upload: store the file, call extraction, save the review; slip upload calls `/extract/slip`
 - [ ] Sealed offers: a lender sees only their own offer, the buyer sees no offers or fees
 - [ ] Documents disclosed only to the selected lender, after the pledge
 - [ ] Payment instruction with reference, settlement steps, buyer track record from history
-- [ ] `FakeRegistry` and `FakeProver` used behind the Stage 0 interfaces, so the whole flow runs without chains
+- [ ] `CHAIN_MODE=fake` wires `FakeRegistry` and `FakeProver` (from `@invoice-veil/shared/fakes`), so the whole flow runs without chains
 - [ ] Chain event indexer working against `FakeRegistry.listEvents`, replay creates no duplicates
 - [ ] Visibility tests: buyer cannot see offers or fees, Lender B cannot see Lender A's offer or documents
 - [ ] `apps/web/src/lib/http-api.ts` implements the full `InvoiceVeilApi`, tested with mocked `fetch`
@@ -121,12 +123,12 @@ modules have the same shape.
 ### P3: Cardano
 
 - [ ] `contracts/cardano`: `aiken new`, `aiken check` and `aiken build` pass, `plutus.json` committed
-- [ ] Two test wallets on preprod, funded from the faucet (keys stay in `.env`, never in the repo)
+- [ ] Four test wallets on preprod (supplier, buyer, Lender A, Lender B), funded from the faucet (seed phrases only in local `.env`)
 - [ ] Registry validator: register, amend, pledge, Defaulted, close, cancel
 - [ ] Aiken tests: unauthorized updates fail, a second pledge fails
-- [ ] Off-chain TypeScript library (Mesh) that implements `CardanoRegistry` exactly as agreed
-- [ ] Standalone script runs the full lifecycle on preprod, including a rejected second pledge; transaction IDs saved
-- [ ] `getState` returns the recorded payee lender, `listEvents` returns history for the indexer
+- [ ] `packages/cardano-registry` (Mesh + Blockfrost) implements `CardanoRegistry` exactly as agreed, plus `createDemoSigner`
+- [ ] Standalone script runs the shared acceptance scenario (`docs/interfaces.md` § 8) on preprod; transaction IDs saved
+- [ ] `getEntry` returns the recorded payee lender, `listEvents` returns history for the indexer
 - [ ] README "how to use": env vars, script, example calls, known limits
 
 ### P4: Midnight
@@ -136,7 +138,8 @@ modules have the same shape.
 - [ ] Minimum-value circuit with `MIN100K_LKR_V1`
 - [ ] Tests: LKR 120,000 passes, LKR 80,000 fails, altered fields fail
 - [ ] `packages/proof-verifier` implements `MinimumValueProver` (prove and verify) exactly as agreed
-- [ ] Standalone script: commit, prove and verify on testnet; contract address and transaction IDs saved
+- [ ] Standalone script runs the Midnight half of the acceptance scenario on testnet; contract address and transaction IDs saved
+- [ ] `computeCommitment` matches the circuit byte for byte (test it against a value computed inside Compact)
 - [ ] README "how to use": proof server, env vars, example calls, known limits
 
 ### P5: Frontend and research
@@ -146,6 +149,7 @@ modules have the same shape.
 - [ ] Rejected second financing shown clearly (error from the chain, nothing changes in the app)
 - [ ] Connect wallet with a real CIP-30 wallet on preprod (Mesh `BrowserWallet`): address and balance
 - [ ] Proof progress and chain entries driven only by data from `InvoiceVeilApi` (no hard-coded states)
+- [ ] Mock USD threshold changed from 200,000 to 100,000 minor units (`MIN1K_USD_V1` = USD 1,000)
 - [ ] Component tests for the role workflows; build, lint and tests pass
 - [ ] Fresh-clone test by following the README, in under 30 minutes, with notes on what broke
 - [ ] Two interviews done by 30 Nov (suppliers first)
@@ -157,7 +161,7 @@ modules have the same shape.
 - [ ] Tests pass in the dev container
 - [ ] Standalone demo works on a fresh clone
 - [ ] README "how to use" section written
-- [ ] Anything that differs from the Stage 0 interfaces written down for P1
+- [ ] Anything that differs from `docs/interfaces.md` written down for P1
 
 ---
 
