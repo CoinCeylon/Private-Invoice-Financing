@@ -2,11 +2,11 @@ import "dotenv/config";
 import express from "express";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "./generated/prisma/client.js";
-import { formatMinor } from "@invoice-veil/shared";
+import { formatMinor, listingStatusCodes } from "@invoice-veil/shared";
 import { demoOrganizations, isDemoRole } from "./demo-organizations.js";
 import type { DemoRole } from "./demo-organizations.js";
 import { extractionRouter } from "./extraction.js";
-import { listingStatusCodes, toInvoiceSummary } from "./invoice-summary.js";
+import { toInvoiceSummary } from "./invoice-summary.js";
 
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL });
 const prisma = new PrismaClient({ adapter });

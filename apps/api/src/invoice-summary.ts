@@ -1,35 +1,8 @@
 // Turns invoice rows into the web app's InvoiceSummary shape (apps/web/src/lib/api.ts),
 // applying the per-role visibility rules on the server so hidden data never leaves the API.
+import { isCurrency, statusLabels } from "@invoice-veil/shared";
+import type { Currency, Money, StatusCode, StatusLabel } from "@invoice-veil/shared";
 import type { DemoRole } from "./demo-organizations.js";
-
-// Database status codes -> the labels the web app shows (`invoiceStatuses` in apps/web/src/lib/api.ts).
-const statusLabels = {
-  DRAFT: "Draft",
-  AWAITING_BUYER_REVIEW: "Awaiting buyer review",
-  AVAILABLE: "Available",
-  ELIGIBLE: "Eligible",
-  LISTED: "Listed",
-  OFFERS_RECEIVED: "Offers received",
-  OFFER_SELECTED: "Offer selected",
-  PLEDGED: "Pledged",
-  ADVANCE_PAID: "Advance paid",
-  PAYMENT_INSTRUCTED: "Payment instructed",
-  SLIP_UPLOADED: "Slip uploaded",
-  PAID_BY_BUYER_AWAITING_LENDER: "Paid by buyer – awaiting lender",
-  PAYMENT_CONFIRMED: "Payment confirmed",
-  LATE: "Late",
-  DISPUTED: "Disputed",
-  BALANCE_SENT: "Balance sent",
-  DEFAULTED: "Defaulted",
-  CLOSED: "Closed",
-} as const;
-
-export type StatusCode = keyof typeof statusLabels;
-export type StatusLabel = (typeof statusLabels)[StatusCode];
-export type Currency = "LKR" | "USD";
-
-/** Statuses a lender may see before it has been selected: the open listing. */
-export const listingStatusCodes: StatusCode[] = ["LISTED", "OFFERS_RECEIVED"];
 
 export interface InvoiceRow {
   reference: string;
@@ -40,11 +13,6 @@ export interface InvoiceRow {
   createdAt: Date;
   supplier: { name: string };
   buyer: { name: string };
-}
-
-export interface Money {
-  minorUnits: number;
-  currency: Currency;
 }
 
 export type VisibleAmount = { visibility: "hidden" } | { visibility: "visible"; money: Money };
@@ -69,7 +37,7 @@ function isLender(role: DemoRole): boolean {
 }
 
 function toCurrency(value: string): Currency {
-  if (value === "LKR" || value === "USD") return value;
+  if (isCurrency(value)) return value;
   throw new Error(`Unsupported currency: ${value}`);
 }
 

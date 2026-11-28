@@ -105,7 +105,7 @@ The TypeScript versions are in `packages/shared/src`, with working fakes in `pac
 
 ### P2: Backend
 
-- [ ] Use `statusLabels` and `actionRules` from `@invoice-veil/shared` instead of the API's own copies
+- [x] Use `statusLabels` and `actionRules` from `@invoice-veil/shared` instead of the API's own copies
 - [ ] Tables: `memberships`, `documents`, `invoice_versions`, `listings`, `offers`, `purchase_orders`, `delivery_receipts`, `payments`, `chain_events`, plus the per-invoice chain columns in `docs/interfaces.md` § 7
 - [ ] Every `InvoiceVeilApi` method served over HTTP: ledger snapshot, invoice detail per role, upload, `act`
 - [ ] Every `InvoiceAction` as a state change with checks (who may do it, in which status)
